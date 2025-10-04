@@ -136,7 +136,8 @@ export const generateInsightSummary = async (data: Record<string, any>[], query:
 const simulateNLQResponse = (query: string, columns: DataColumn[], tableName: string): NLQResult => {
   const lowerQuery = query.toLowerCase();
   const numericColumns = columns.filter(c => c.type === 'number').map(c => c.name);
-  const dateColumns = columns.filter(c => c.type === 'date').map(c => c.name);
+ 
+
 
   let sql = '';
   let explanation = '';

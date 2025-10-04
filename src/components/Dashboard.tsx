@@ -11,13 +11,19 @@ import {
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
-import { KPICard, LineChart, BarChart } from './Charts';
-import { calculateKPIs, predictTimeSeries, detectAnomalies, generateRecommendations } from '../../src/services/mlService';
+import { KPICard, LineChart } from './Charts';
+import {
+  calculateKPIs,
+  predictTimeSeries,
+  detectAnomalies,
+  generateRecommendations
+} from '../../src/services/mlService';
 import { KPI, PredictionResult, AnomalyResult } from '../../backend/src/types';
 
 export const Dashboard: React.FC = () => {
   const { currentDataset, addInsight, addAlert } = useData();
   const { user } = useAuth();
+
   const [kpis, setKpis] = useState<KPI[]>([]);
   const [predictions, setPredictions] = useState<PredictionResult | null>(null);
   const [anomalies, setAnomalies] = useState<AnomalyResult[]>([]);
@@ -32,37 +38,48 @@ export const Dashboard: React.FC = () => {
 
   const analyzeData = async () => {
     if (!currentDataset) return;
-
     setIsAnalyzing(true);
 
     try {
-      const datasetRows = JSON.parse(localStorage.getItem(`dataset_${currentDataset.id}`) || '[]');
+      const datasetRows = JSON.parse(
+        localStorage.getItem(`dataset_${currentDataset.id}`) || '[]'
+      );
 
       const numericColumns = currentDataset.columns
         .filter(col => col.type === 'number')
         .map(col => col.name);
 
       if (numericColumns.length > 0) {
+        // Calculate KPIs
         const calculatedKPIs = calculateKPIs(datasetRows, numericColumns);
         setKpis(calculatedKPIs);
 
         const primaryMetric = numericColumns[0];
+
+        // Predictions
         const predictionResult = predictTimeSeries(datasetRows, primaryMetric, 30);
         setPredictions(predictionResult);
 
+        // Anomaly detection
         const detectedAnomalies = detectAnomalies(datasetRows, primaryMetric);
         setAnomalies(detectedAnomalies);
 
+        // Generate recommendations
         const recs = generateRecommendations(detectedAnomalies, predictionResult);
         setRecommendations(recs);
 
+        // Add alerts for anomalies
         detectedAnomalies.forEach((anomaly, index) => {
           if (anomaly.severity === 'high' || anomaly.severity === 'medium') {
             addAlert({
               id: `anomaly-${Date.now()}-${index}`,
               type: 'anomaly',
-              title: `${anomaly.severity === 'high' ? 'Critical' : 'Warning'}: ${anomaly.metric} Anomaly`,
-              message: `${anomaly.metric} deviated by ${Math.abs(anomaly.deviation).toFixed(1)}% at ${new Date(anomaly.timestamp).toLocaleDateString()}`,
+              title: `${
+                anomaly.severity === 'high' ? 'Critical' : 'Warning'
+              }: ${anomaly.metric} Anomaly`,
+              message: `${anomaly.metric} deviated by ${Math.abs(
+                anomaly.deviation
+              ).toFixed(1)}% at ${new Date(anomaly.timestamp).toLocaleDateString()}`,
               severity: anomaly.severity === 'high' ? 'critical' : 'warning',
               created_at: new Date().toISOString(),
               read: false
@@ -70,16 +87,20 @@ export const Dashboard: React.FC = () => {
           }
         });
 
+        // Add prediction insight
         addInsight({
           id: `prediction-${Date.now()}`,
           type: 'prediction',
           dataset_id: currentDataset.id,
           title: `${primaryMetric} Forecast`,
-          description: `Predicted ${primaryMetric} for the next 30 periods with ${((predictionResult.accuracy_score || 0) * 100).toFixed(1)}% confidence`,
+          description: `Predicted ${primaryMetric} for the next 30 periods with ${(
+            (predictionResult.accuracy_score || 0) * 100
+          ).toFixed(1)}% confidence`,
           data: predictionResult,
           created_at: new Date().toISOString()
         });
 
+        // Add anomaly insight
         if (detectedAnomalies.length > 0) {
           addInsight({
             id: `anomaly-${Date.now()}`,
@@ -144,6 +165,7 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Dashboard Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-8 text-white">
         <div className="flex items-center justify-between">
           <div>
@@ -161,9 +183,10 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* KPI Cards */}
       {kpis.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpis.slice(0, 4).map((kpi) => (
+          {kpis.slice(0, 4).map(kpi => (
             <KPICard
               key={kpi.id}
               title={kpi.name}
@@ -177,6 +200,7 @@ export const Dashboard: React.FC = () => {
         </div>
       )}
 
+      {/* AI Recommendations */}
       {recommendations.length > 0 && (
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
           <div className="flex items-center gap-3 mb-4">
@@ -195,6 +219,7 @@ export const Dashboard: React.FC = () => {
         </div>
       )}
 
+      {/* Predictions */}
       {predictions && predictions.predictions.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <LineChart
@@ -205,7 +230,6 @@ export const Dashboard: React.FC = () => {
             title={`${predictions.metric} - 30 Day Forecast`}
             color="#3b82f6"
           />
-
           <div className="bg-white rounded-lg p-6 border border-gray-200">
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Prediction Details</h3>
             <div className="space-y-4">
@@ -233,7 +257,8 @@ export const Dashboard: React.FC = () => {
                   {predictions.predictions[0]?.value.toLocaleString()}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Range: {predictions.predictions[0]?.confidence_lower.toFixed(0)} - {predictions.predictions[0]?.confidence_upper.toFixed(0)}
+                  Range: {predictions.predictions[0]?.confidence_lower.toFixed(0)} -{' '}
+                  {predictions.predictions[0]?.confidence_upper.toFixed(0)}
                 </p>
               </div>
             </div>
@@ -241,6 +266,7 @@ export const Dashboard: React.FC = () => {
         </div>
       )}
 
+      {/* Anomalies */}
       {anomalies.length > 0 && (
         <div className="bg-white rounded-xl p-6 border border-gray-200">
           <div className="flex items-center gap-3 mb-4">
@@ -279,7 +305,8 @@ export const Dashboard: React.FC = () => {
                         : 'bg-yellow-200 text-yellow-900'
                     }`}
                   >
-                    {anomaly.deviation > 0 ? '+' : ''}{anomaly.deviation.toFixed(1)}%
+                    {anomaly.deviation > 0 ? '+' : ''}
+                    {anomaly.deviation.toFixed(1)}%
                   </span>
                 </div>
               </div>
