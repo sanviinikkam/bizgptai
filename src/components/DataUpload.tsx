@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader } from 'lucide-react';
-import { Dataset } from '../types';
+import { Dataset } from '../../backend/src/types';
 import { parseCSV, processDataset } from '../utils/dataProcessor';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';

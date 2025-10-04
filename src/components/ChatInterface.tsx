@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, MicOff, Loader, Sparkles } from 'lucide-react';
 import { useData } from '../context/DataContext';
-import { translateNLQtoSQL, executeQuery, generateInsightSummary } from '../services/nlqService';
-import { startVoiceRecognition, isSpeechRecognitionSupported } from '../services/voiceService';
+import { translateNLQtoSQL, executeQuery, generateInsightSummary } from '../../backend/src/services/nlqService';
+import { startVoiceRecognition, isSpeechRecognitionSupported } from '../../src/services/voiceService'
 
 interface Message {
   id: string;

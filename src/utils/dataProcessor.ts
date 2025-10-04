@@ -1,4 +1,4 @@
-import { DataColumn } from '../types';
+import { DataColumn } from '../../backend/src/types';
 
 export interface ProcessedData {
   columns: DataColumn[];

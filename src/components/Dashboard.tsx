@@ -11,9 +11,9 @@ import {
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
-import { KPICard, LineChart } from './Charts';
-import { calculateKPIs, predictTimeSeries, detectAnomalies, generateRecommendations } from '../services/mlService';
-import { KPI, PredictionResult, AnomalyResult } from '../types';
+import { KPICard, LineChart, BarChart } from './Charts';
+import { calculateKPIs, predictTimeSeries, detectAnomalies, generateRecommendations } from '../../src/services/mlService';
+import { KPI, PredictionResult, AnomalyResult } from '../../backend/src/types';
 
 export const Dashboard: React.FC = () => {
   const { currentDataset, addInsight, addAlert } = useData();

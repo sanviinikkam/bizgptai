@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Dataset, Alert, Insight } from '../types';
+import { Dataset, Alert, Insight } from '../../backend/src/types';
 
 interface DataContextType {
   datasets: Dataset[];

@@ -1,4 +1,4 @@
-import { PredictionResult, AnomalyResult } from '../types';
+import { PredictionResult, AnomalyResult } from '../../backend/src/types';
 
 export interface TimeSeriesData {
   date: string;
