@@ -225,7 +225,7 @@ export const generateInsightSummary = async (data: Record<string, any>[], query:
         messages: [
           {
             role: 'system',
-            content: 'You are a business analyst. Provide concise, actionable insights from data.'
+            content: 'You are a Senior business analyst. Provide concise, actionable insights from data.'
           },
           {
             role: 'user',
